@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Прототип «Под ключ»: клики</title>
+<title>Прототипы лендингов: клики</title>
 <style>
 :root {
   --surface-0: #f6f6f4; --surface-1: #ffffff; --border: #e4e3de;
@@ -77,6 +77,14 @@ tr.sel td { background: var(--track); }
 .tag { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: 12px; border: 1px solid var(--border); color: var(--text-secondary); }
 .tag.yes { color: var(--text-primary); border-color: var(--series-1); }
 .scroll { max-height: 420px; overflow: auto; }
+.seg { display: inline-flex; background: var(--track); border-radius: 10px; padding: 3px; gap: 2px; margin: 8px 0 4px; }
+.seg button { height: 32px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--text-secondary); font: inherit; font-weight: 500; cursor: pointer; }
+.seg button.on { background: var(--surface-1); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.switch-row { grid-column: span 12; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.switch-row h2 { font-size: 16px; font-weight: 600; }
+#t-compare td.num, #t-compare th.num, #t-resp td.c, #t-resp th.c { text-align: right; }
+#t-compare td:first-child { color: var(--text-secondary); }
+.note { color: var(--text-muted); font-size: 12px; }
 .empty { color: var(--text-muted); padding: 24px 0; text-align: center; }
 #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; max-width: 280px; }
 </style>
@@ -84,7 +92,7 @@ tr.sel td { background: var(--track); }
 <body>
 <div class="wrap">
   <header>
-    <h1>Прототип «Под ключ»: что делают респонденты</h1>
+    <h1>Прототипы лендингов: что делают респонденты</h1>
     <span class="status" id="status">Загрузка…</span>
   </header>
 
@@ -101,10 +109,18 @@ tr.sel td { background: var(--track); }
   </div>
 
   <div class="grid">
-    <div class="card kpi span3"><div class="label">Сессий</div><div class="val" id="k-sessions">—</div><div class="note" id="k-sessions-note"></div></div>
-    <div class="card kpi span3"><div class="label">Перешли в УК</div><div class="val" id="k-uk">—</div><div class="note" id="k-uk-note"></div></div>
-    <div class="card kpi span3"><div class="label">Время до перехода в УК, медиана</div><div class="val" id="k-time">—</div><div class="note" id="k-time-note"></div></div>
-    <div class="card kpi span3"><div class="label">Долистали до конца (≥90%)</div><div class="val" id="k-scroll">—</div><div class="note" id="k-scroll-note"></div></div>
+    <div class="card span7">
+      <h2>Сравнение прототипов</h2>
+      <div class="sub">Учитывается только первая сессия респондента в каждом прототипе — до перехода в УК</div>
+      <table id="t-compare"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="card span5">
+      <h2>Респонденты</h2>
+      <div class="sub">Кто какой прототип прошёл и дошёл ли до УК</div>
+      <div class="scroll" style="max-height:260px"><table id="t-resp"><thead></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="switch-row"><h2>Детально по прототипу</h2><div class="seg" id="proto-switch"></div></div>
 
     <div class="card span6">
       <h2>Какая кнопка ведёт в УК</h2>
@@ -122,7 +138,7 @@ tr.sel td { background: var(--track); }
       <div class="sub">Каждая точка — тап. Положение пересчитано относительно блока, поэтому сопоставимо между телефонами разной ширины</div>
       <div class="legend"><span><i style="background:var(--series-1)"></i>Тап по рабочему элементу</span><span><i style="background:var(--series-2)"></i>«Мёртвый» тап — ничего не произошло</span></div>
       <div class="heat-wrap">
-        <div class="heat-frame" id="heat-frame"><div class="heat-in"><iframe id="heat-iframe" src="index.html?embed=1" title="Прототип" scrolling="no"></iframe><canvas id="heat-canvas"></canvas></div></div>
+        <div class="heat-frame" id="heat-frame"><div class="heat-in"><iframe id="heat-iframe" src="about:blank" title="Прототип" scrolling="no"></iframe><canvas id="heat-canvas"></canvas></div></div>
         <div class="heat-side">
           <h2>Куда тапают</h2>
           <div class="sub">Сессий с тапом по элементу; синий — рабочие тапы, оранжевый — мёртвые</div>
@@ -145,36 +161,61 @@ tr.sel td { background: var(--track); }
 </div>
 <div id="tip"></div>
 
-<script src="config.js?v=4"></script>
+<script src="config.js?v=7"></script>
 <script>
 (function () {
   var CFG = window.PROTO_CONFIG || {};
-  var LS_KEY = 'proto_log_' + (CFG.prototype || 'proto');
+  var LS_KEYS = ['proto_log_landing_pod_klyuch_v1', 'proto_log_landing_vremya_v1'];
   var ALL = [];          // все события
   var source = '';
   var selected = null;
 
-  var SECTIONS = [
-    ['hero', 'Первый экран'], ['services', 'Поиск по-новому'], ['trust', 'Подберём того…'],
-    ['steps', 'Как вызвать мастера'], ['prices', 'Что можно поручить'], ['map', 'Карта и адрес'],
-    ['reviews', 'Отзывы'], ['faq', 'Вопросы и ответы'], ['final', 'Финальный призыв'], ['footer', 'Футер']
+  // Прототипы: id совпадает с PROTO_CONFIG.prototype на странице прототипа
+  var PROTOS = [
+    { id: 'landing_pod_klyuch_v1', name: 'Под ключ', page: 'index.html',
+      sections: [['hero', 'Первый экран'], ['services', 'Поиск по-новому'], ['trust', 'Подберём того…'], ['steps', 'Как вызвать мастера'],
+        ['prices', 'Что можно поручить'], ['map', 'Карта и адрес'], ['reviews', 'Отзывы'], ['faq', 'Вопросы и ответы'], ['final', 'Финальный призыв'], ['footer', 'Футер']],
+      cta: [['cta_start_matching', '«Начать подбор» (первый экран)'], ['cta_find_5min_steps', '«Найти мастера за 5 минут» (шаги)'], ['cta_find_5min_bottom', '«Найти мастера за 5 минут» (низ)']] },
+    { id: 'landing_vremya_v1', name: 'Дорогое время', page: 'vremya/index.html',
+      sections: [['hero', 'Первый экран'], ['prices', 'Сначала цена, потом ремонт'], ['benefits', 'Вам не придётся'], ['steps', 'Три шага'],
+        ['parts', 'А что с запчастями?'], ['reviews', 'Отзывы'], ['final', 'Бережём ваше время'], ['faq', 'Вопросы и ответы'], ['footer', 'Футер']],
+      cta: [['cta_hero', '«Вызвать мастера» (первый экран)'], ['cta_benefits', '«Вызвать мастера» (после «Вам не придётся»)'], ['cta_final', '«Вызвать мастера» (низ)']] }
   ];
-  var CTA = [
-    ['cta_start_matching', '«Начать подбор» (первый экран)'],
-    ['cta_find_5min_steps', '«Найти мастера за 5 минут» (шаги)'],
-    ['cta_find_5min_bottom', '«Найти мастера за 5 минут» (низ)']
-  ];
+  var ifr = document.getElementById('heat-iframe'), cnv = document.getElementById('heat-canvas'), lastTaps = [], fitted = 0;
+  var PBY = {}; PROTOS.forEach(function (p) { PBY[p.id] = p; });
+  var cur = PROTOS[0];
+  try { var saved = localStorage.getItem('dash_proto'); if (saved && PBY[saved]) cur = PBY[saved]; } catch (e) {}
   var LABELS = {
     header_login: '«Войти» в шапке', header_logo: 'Логотип в шапке', footer_login_client: '«Вход для клиентов» в футере',
     prices_all: '«Все цены»', addr_check: '«Проверить» адрес', addr_input: 'Поле адреса', trust_rating_chip: 'Плашка «99% оценок»',
-    map_image: 'Карта'
+    map_image: 'Карта', hero_image: 'Картинка первого экрана',
+    hero_chip_noise: 'Чипс «Шумит»', hero_chip_drain: 'Чипс «Не сливает воду»', hero_chip_spin: 'Чипс «Не отжимает»',
+    price_card_drain: 'Цена «Не сливает»', price_card_leak: 'Цена «Течёт из-под люка»', price_card_power: 'Цена «Не включается»',
+    price_note_estimate: 'Плашка «Примерную стоимость покажем сразу»', price_note_exact: 'Плашка «Точная цена после диагностики»',
+    benefit_listing: 'Карточка «Листать объявления»', benefit_calls: 'Карточка «Звонить и договариваться»', benefit_unknown: 'Карточка «Быть в неизвестности»',
+    parts_economy: 'Запчасти: эконом', parts_premium: 'Запчасти: премиум',
+    footer_clients: 'Футер: «Клиентам»', footer_pros: 'Футер: «Специалистам»', footer_company: 'Футер: «Компания»', footer_chat: 'Футер: «Чат с поддержкой»'
   };
-  CTA.forEach(function (c) { LABELS[c[0]] = c[1]; });
+  var L1 = {
+    benefit_no_search: 'Карточка «Не придётся искать мастера»', benefit_price: 'Карточка «Цена известна заранее»', benefit_reviews: 'Карточка «Специалисты с отличными отзывами»',
+    svc_card_cleaning: 'Карточка «Химчистка»', svc_card_plumbing: 'Карточка «Сантехника»', svc_card_appliances: 'Карточка «Бытовая техника»',
+    svc_chip_cleaning_furniture: 'Чипс «Мебель»', svc_chip_cleaning_carpets: 'Чипс «Ковры»', svc_chip_plumbing_repair: 'Чипс «Ремонт» (сантехника)',
+    svc_chip_plumbing_install: 'Чипс «Установка» (сантехника)', svc_chip_appliances_install: 'Чипс «Установка» (техника)', svc_chip_appliances_connect: 'Чипс «Подключение»',
+    price_tile_plumbing: 'Плитка «Ремонт и установка сантехники»', price_tile_electric: 'Плитка «Ремонт электрики»', price_tile_cleaning: 'Плитка «Химчистка мебели и ковров»',
+    price_tile_handyman: 'Плитка «Мастер на час»', price_tile_lock: 'Плитка «Ремонт дверной замочной скважины»',
+    footer_logo: 'Футер: логотип', footer_vk: 'Футер: VK', footer_ok: 'Футер: OK', footer_ig: 'Футер: Instagram', footer_yt: 'Футер: YouTube',
+    footer_full_version: 'Футер: «Полная версия сайта»', footer_city: 'Футер: «Город Казань»', footer_login_pro: 'Футер: «Вход для специалистов»',
+    footer_jobs_city: 'Футер: «Работа в Казани»', footer_life: 'Футер: «Жизнь в Профи»', footer_vacancies: 'Футер: «Вакансии»', footer_ads: 'Футер: «Рекламодателям»',
+    footer_catalog: 'Футер: «Каталог ссылок»', footer_gplay: 'Футер: Google Play', footer_appstore: 'Футер: App Store', footer_country: 'Футер: «Россия — сменить страну»'
+  };
+  Object.keys(L1).forEach(function (k) { LABELS[k] = L1[k]; });
+  PROTOS.forEach(function (p) { p.cta.forEach(function (c) { LABELS[c[0]] = c[1]; }); });
   function label(el) {
     if (LABELS[el]) return LABELS[el];
     var m;
     if ((m = el.match(/^faq_(\d)/))) return 'FAQ, вопрос ' + m[1];
     if ((m = el.match(/^review_(\d)/))) return 'Отзыв ' + m[1];
+    if ((m = el.match(/^step_(\d)/))) return 'Шаг ' + m[1];
     if (el.indexOf('svc_card_') === 0) return 'Карточка «' + ({ cleaning: 'Химчистка', plumbing: 'Сантехника', appliances: 'Бытовая техника' }[el.slice(9)] || el) + '»';
     if (el.indexOf('svc_chip_') === 0) return 'Чипс ' + el.slice(9);
     if (el.indexOf('price_tile_') === 0) return 'Плитка цены: ' + el.slice(11);
@@ -191,16 +232,27 @@ tr.sel td { background: var(--track); }
       setStatus('Загрузка из Google-таблицы…');
       fetch(CFG.endpoint + (CFG.endpoint.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now())
         .then(function (r) { return r.json(); })
-        .then(function (d) { ALL = (d.events || []).map(norm); source = 'Google-таблица'; render(); })
-        .catch(function (e) { setStatus('Не удалось загрузить из таблицы: ' + e.message); fromLocal(); });
+        .then(function (d) { REMOTE = (d.events || []).map(norm); loadedOnce = true; lastOk = new Date(); source = 'Google-таблица'; merge(); render(); })
+        .catch(function (e) {
+          if (loadedOnce) { setStatus('Не удалось обновить из таблицы (' + esc(e.message) + '), показаны данные на ' + lastOk.toLocaleTimeString('ru-RU')); return; }
+          setStatus('Не удалось загрузить из таблицы: ' + esc(e.message)); fromLocal(true);
+        });
     } else {
       fromLocal();
     }
   }
-  function fromLocal() {
-    try { ALL = JSON.parse(localStorage.getItem(LS_KEY) || '[]').map(norm); } catch (e) { ALL = []; }
-    source = 'память этого браузера (хранилище не подключено)';
-    render();
+  function fromLocal(afterError) {
+    REMOTE = [];
+    LS_KEYS.forEach(function (k) { try { REMOTE = REMOTE.concat(JSON.parse(localStorage.getItem(k) || '[]').map(norm)); } catch (e) {} });
+    source = afterError ? 'память этого браузера (таблица недоступна)' : 'память этого браузера (хранилище не подключено)';
+    merge(); render(afterError);
+  }
+  // ALL = данные таблицы + загруженные с телефона файлы (без дублей)
+  var REMOTE = [], IMPORTED = [], IMPORTED_NAMES = [], loadedOnce = false, lastOk = null;
+  function evKey(e) { return e.session + '|' + e.proto + '|' + e.ts + '|' + e.type + '|' + (e.el || ''); }
+  function merge() {
+    var seen = {}; ALL = [];
+    REMOTE.concat(IMPORTED).forEach(function (e) { var k = evKey(e); if (!seen[k]) { seen[k] = 1; ALL.push(e); } });
   }
   function norm(e) {
     ['t', 'x', 'y', 'xr', 'yr', 'sxr', 'syr', 'vw', 'vh', 'sy', 'pct', 'ms', 'max_scroll', 'len', 'dpr', 'doc_h'].forEach(function (k) {
@@ -214,9 +266,8 @@ tr.sel td { background: var(--track); }
     var f = ev.target.files[0]; if (!f) return;
     f.text().then(function (txt) {
       var arr = JSON.parse(txt); arr = Array.isArray(arr) ? arr : (arr.events || []);
-      var seen = {}; ALL.forEach(function (e) { seen[e.session + e.t + e.type] = 1; });
-      arr.map(norm).forEach(function (e) { if (!seen[e.session + e.t + e.type]) ALL.push(e); });
-      source += ' + файл ' + f.name; render();
+      IMPORTED = IMPORTED.concat(arr.map(norm)); IMPORTED_NAMES.push(f.name);
+      merge(); render();
     });
   });
   document.getElementById('b-refresh').addEventListener('click', load);
@@ -225,10 +276,10 @@ tr.sel td { background: var(--track); }
 
   // ---------- расчёт ----------
   function isTest(r) { return /^(test|layoutcheck)/i.test(r || ''); }
-  function filtered() {
+  function filtered(evs) {
     var r = document.getElementById('f-r').value, p = document.getElementById('f-period').value, hide = document.getElementById('f-hide').checked;
     var now = Date.now(), dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
-    return ALL.filter(function (e) {
+    return evs.filter(function (e) {
       if (hide && isTest(e.r)) return false;
       if (r && (e.r || '(без метки)') !== r) return false;
       var ts = Date.parse(e.ts);
@@ -239,26 +290,27 @@ tr.sel td { background: var(--track); }
   }
   function bySession(evs) {
     var s = {};
-    evs.forEach(function (e) { (s[e.session] = s[e.session] || []).push(e); });
+    // ключ = сессия + прототип: старые события обоих прототипов из одной вкладки могли иметь общий id сессии
+    evs.forEach(function (e) { var k = e.session + '|' + (e.proto || ''); (s[k] = s[k] || []).push(e); });
     Object.keys(s).forEach(function (k) { s[k].sort(function (a, b) { return Date.parse(a.ts) - Date.parse(b.ts) || a.t - b.t; }); });
     return s;
   }
   // Учитываем только первую сессию до перехода в УК: всё после перехода (возврат назад,
   // повторное открытие той же ссылки респондентом) отбрасываем
   function isUk(e) { return e.type === 'nav' && /profi\.ru\/remont\//.test(e.to || ''); }
+  // Для респондента с меткой ?r= берём только его первую сессию в каждом прототипе;
+  // в ней — события до первого перехода в УК включительно. Без метки — каждую сессию до УК.
   function untilUk(evs) {
-    var S = bySession(evs), out = [], ukAt = {};
+    var S = bySession(evs), out = [], taken = {};
     var ids = Object.keys(S).sort(function (a, b) { return Date.parse(S[a][0].ts) - Date.parse(S[b][0].ts); });
     ids.forEach(function (id) {
-      var ev = S[id], r = ev[0].r || '';
-      if (r && ukAt[r] && Date.parse(ev[0].ts) > ukAt[r]) return;  // респондент уже переходил в УК раньше
-      for (var i = 0; i < ev.length; i++) {
-        out.push(ev[i]);
-        if (isUk(ev[i])) { if (r && !ukAt[r]) ukAt[r] = Date.parse(ev[i].ts); break; }
-      }
+      var ev = S[id], who = ev[0].r ? ev[0].r + '|' + (ev[0].proto || '') : '';
+      if (who) { if (taken[who]) return; taken[who] = 1; }
+      for (var i = 0; i < ev.length; i++) { out.push(ev[i]); if (isUk(ev[i])) break; }
     });
     return out;
   }
+  function since(ev, e) { return Date.parse(e.ts) - Date.parse(ev[0].ts); }
   function median(a) { if (!a.length) return null; a = a.slice().sort(function (x, y) { return x - y; }); var m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
   function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
   function fmtSec(ms) { if (ms == null) return '—'; var s = Math.round(ms / 1000); return s < 60 ? s + ' с' : Math.floor(s / 60) + ' мин ' + (s % 60) + ' с'; }
@@ -273,30 +325,21 @@ tr.sel td { background: var(--track); }
 
   function render() {
     // список респондентов
-    var sel = document.getElementById('f-r'), cur = sel.value;
+    var sel = document.getElementById('f-r'), curR = sel.value;
     var rs = {}; ALL.forEach(function (e) { if (!(document.getElementById('f-hide').checked && isTest(e.r))) rs[e.r || '(без метки)'] = 1; });
-    sel.innerHTML = '<option value="">Все респонденты</option>' + Object.keys(rs).sort().map(function (r) { return '<option' + (r === cur ? ' selected' : '') + '>' + esc(r) + '</option>'; }).join('');
+    sel.innerHTML = '<option value="">Все респонденты</option>' + Object.keys(rs).sort().map(function (r) { return '<option' + (r === curR ? ' selected' : '') + '>' + esc(r) + '</option>'; }).join('');
 
-    var evs = untilUk(filtered()), S = bySession(evs), ids = Object.keys(S), n = ids.length;
-    setStatus('Источник: <b>' + esc(source) + '</b> · событий: ' + evs.length + ' · обновлено ' + new Date().toLocaleTimeString('ru-RU'));
+    var all = filtered(untilUk(ALL.filter(function (e) { return PBY[e.proto]; })));
+    setStatus('Источник: <b>' + esc(source) + (IMPORTED_NAMES.length ? ' + файл ' + esc(IMPORTED_NAMES.join(', ')) : '') + '</b> · событий: ' + all.length + ' · обновлено ' + new Date().toLocaleTimeString('ru-RU'));
+    compareTable(all);
+    respTable(all);
+    switcher();
 
-    // KPI
-    var reached = 0, toUk = [], deep = 0, ctaSess = {};
-    ids.forEach(function (id) {
-      var ev = S[id], nav = ev.filter(function (e) { return e.type === 'nav' && /profi\.ru\/remont/.test(e.to || ''); });
-      if (nav.length) { reached++; toUk.push(nav[0].t); }
-      var mx = Math.max.apply(null, ev.map(function (e) { return e.type === 'scroll_depth' ? e.pct : (e.max_scroll || 0); }).concat([0]));
-      if (mx >= 90) deep++;
-      ev.forEach(function (e) { if (e.type === 'tap' && /^cta_/.test(e.el)) (ctaSess[e.el] = ctaSess[e.el] || {})[id] = 1; });
-    });
-    document.getElementById('k-sessions').textContent = n;
-    document.getElementById('k-sessions-note').textContent = Object.keys(rs).length + ' меток респондентов';
-    document.getElementById('k-uk').textContent = n ? pct(reached, n) + '%' : '—';
-    document.getElementById('k-uk-note').textContent = reached + ' из ' + n + ' сессий';
-    document.getElementById('k-time').textContent = fmtSec(median(toUk));
-    document.getElementById('k-time-note').textContent = toUk.length ? 'по ' + toUk.length + ' переходам' : 'переходов пока нет';
-    document.getElementById('k-scroll').textContent = n ? pct(deep, n) + '%' : '—';
-    document.getElementById('k-scroll-note').textContent = deep + ' из ' + n + ' сессий';
+    var evs = all.filter(function (e) { return e.proto === cur.id; }), S = bySession(evs), ids = Object.keys(S), n = ids.length;
+    var SECTIONS = cur.sections, CTA = cur.cta;
+    var ctaSess = {};
+    ids.forEach(function (id) { S[id].forEach(function (e) { if (e.type === 'tap' && /^cta_/.test(e.el)) (ctaSess[e.el] = ctaSess[e.el] || {})[id] = 1; }); });
+    if (ifr.getAttribute('data-page') !== cur.page) { ifr.setAttribute('data-page', cur.page); fitted = 0; ifr.style.height = '600px'; ifr.src = cur.page + '?embed=1'; }
 
     // CTA
     bars('c-cta', CTA.map(function (c) { var k = Object.keys(ctaSess[c[0]] || {}).length; return { name: c[1], a: k, total: n, tip: k + ' из ' + n + ' сессий' }; }), n, true);
@@ -322,6 +365,61 @@ tr.sel td { background: var(--track); }
     sessionsTable(S, ids);
   }
 
+  function stats(evs) {
+    var S = bySession(evs), ids = Object.keys(S), n = ids.length, reached = 0, toUk = [], deep = 0, deadSess = 0, deadTaps = 0;
+    ids.forEach(function (id) {
+      var ev = S[id], nav = ev.filter(isUk);
+      if (nav.length) { reached++; toUk.push(since(ev, nav[0])); }
+      var mx = Math.max.apply(null, ev.map(function (e) { return e.type === 'scroll_depth' ? e.pct : (e.max_scroll || 0); }).concat([0]));
+      if (mx >= 90) deep++;
+      var d = ev.filter(function (e) { return e.type === 'tap' && e.dead; }).length;
+      if (d) deadSess++; deadTaps += d;
+    });
+    return { n: n, reached: reached, toUk: median(toUk), deep: deep, deadSess: deadSess, deadTaps: deadTaps };
+  }
+  function compareTable(all) {
+    var st = PROTOS.map(function (p) { return stats(all.filter(function (e) { return e.proto === p.id; })); });
+    var t = document.getElementById('t-compare');
+    t.tHead.innerHTML = '<tr><th></th>' + PROTOS.map(function (p) { return '<th class="num">' + esc(p.name) + '</th>'; }).join('') + '</tr>';
+    var rows = [
+      ['Сессий', function (s) { return s.n; }],
+      ['Перешли в УК', function (s) { return s.n ? pct(s.reached, s.n) + '% <span class="note">(' + s.reached + ' из ' + s.n + ')</span>' : '—'; }],
+      ['Время до перехода в УК, медиана', function (s) { return fmtSec(s.toUk); }],
+      ['Долистали до конца (≥90%)', function (s) { return s.n ? pct(s.deep, s.n) + '%' : '—'; }],
+      ['Сессий с «мёртвыми» тапами', function (s) { return s.n ? pct(s.deadSess, s.n) + '%' : '—'; }],
+      ['Мёртвых тапов на сессию', function (s) { return s.n ? (s.deadTaps / s.n).toFixed(1).replace('.', ',') : '—'; }]
+    ];
+    t.tBodies[0].innerHTML = rows.map(function (r) { return '<tr><td>' + r[0] + '</td>' + st.map(function (s) { return '<td class="num">' + r[1](s) + '</td>'; }).join('') + '</tr>'; }).join('');
+  }
+  function respTable(all) {
+    var by = {};
+    all.forEach(function (e) {
+      var r = e.r || '(без метки)', o = by[r] = by[r] || {};
+      var p = o[e.proto] = o[e.proto] || { uk: false };
+      if (isUk(e)) p.uk = true;
+    });
+    var t = document.getElementById('t-resp');
+    t.tHead.innerHTML = '<tr><th>Респондент</th>' + PROTOS.map(function (p) { return '<th class="c">' + esc(p.name) + '</th>'; }).join('') + '</tr>';
+    var names = Object.keys(by).sort();
+    t.tBodies[0].innerHTML = names.length ? names.map(function (r) {
+      return '<tr><td>' + esc(r) + '</td>' + PROTOS.map(function (p) {
+        var x = by[r][p.id];
+        return '<td class="c">' + (!x ? '<span class="note">—</span>' : x.uk ? '<span class="tag yes">УК</span>' : '<span class="tag">без УК</span>') + '</td>';
+      }).join('') + '</tr>';
+    }).join('') : '<tr><td colspan="3" class="empty">Пока никого</td></tr>';
+  }
+  function switcher() {
+    var box = document.getElementById('proto-switch');
+    box.innerHTML = PROTOS.map(function (p) { return '<button type="button" data-p="' + p.id + '" class="' + (p === cur ? 'on' : '') + '">' + esc(p.name) + '</button>'; }).join('');
+    box.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        cur = PBY[b.getAttribute('data-p')]; selected = null;
+        try { localStorage.setItem('dash_proto', cur.id); } catch (e) {}
+        render();
+      });
+    });
+  }
+
   // бары: a — синий сегмент, b — оранжевый (необязательный)
   function bars(id, rows, max, asPct) {
     var box = document.getElementById(id);
@@ -336,9 +434,7 @@ tr.sel td { background: var(--track); }
   }
 
   // тепловая карта поверх живого прототипа
-  var ifr = document.getElementById('heat-iframe'), cnv = document.getElementById('heat-canvas'), lastTaps = [];
   // высота iframe = высота прототипа; подгоняем повторно, т.к. iframe может загрузиться раньше скрипта
-  var fitted = 0;
   function fit() {
     var d = ifr.contentDocument;
     if (!d || !d.body || d.readyState === 'loading') return;
@@ -376,7 +472,7 @@ tr.sel td { background: var(--track); }
     if (!ids.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">Сессий пока нет</td></tr>'; timeline(null, []); return; }
     tb.innerHTML = ids.map(function (id) {
       var ev = S[id], start = ev.find(function (e) { return e.type === 'session_start'; }) || ev[0];
-      var dur = Math.max.apply(null, ev.map(function (e) { return e.t || 0; }));
+      var dur = since(ev, ev[ev.length - 1]);
       var mx = Math.max.apply(null, ev.map(function (e) { return e.type === 'scroll_depth' ? e.pct : (e.max_scroll || 0); }).concat([0]));
       var uk = ev.some(function (e) { return e.type === 'nav' && /profi\.ru\/remont/.test(e.to || ''); });
       var ntaps = ev.filter(function (e) { return e.type === 'tap'; }).length;
@@ -392,7 +488,7 @@ tr.sel td { background: var(--track); }
       case 'session_start': return 'Открыл(а) лендинг';
       case 'tap': return (e.dead ? 'Мёртвый тап: ' : 'Тап: ') + label(e.el) + (e.text && !/^untracked/.test(e.el) ? ' — «' + e.text.slice(0, 40) + '»' : '');
       case 'nav': return 'Ушёл(ушла) по ссылке: ' + label(e.el);
-      case 'section_view': return 'Увидел(а) блок «' + ((SECTIONS.find(function (s) { return s[0] === e.section; }) || [, e.section])[1]) + '»';
+      case 'section_view': return 'Увидел(а) блок «' + ((cur.sections.find(function (s) { return s[0] === e.section; }) || [, e.section])[1]) + '»';
       case 'section_dwell': return null;
       case 'scroll_depth': return 'Долистал(а) до ' + e.pct + '%';
       case 'faq_toggle': return (e.open ? 'Открыл(а)' : 'Закрыл(а)') + ' вопрос FAQ ' + e.q;
@@ -406,7 +502,7 @@ tr.sel td { background: var(--track); }
     var tb = document.querySelector('#t-timeline tbody'), sub = document.getElementById('tl-sub');
     if (!id) { sub.textContent = 'Сессия не выбрана'; tb.innerHTML = ''; return; }
     sub.textContent = 'Сессия ' + id + (ev[0] && ev[0].r ? ' · ' + ev[0].r : '');
-    tb.innerHTML = ev.map(function (e) { var t = describe(e); return t ? '<tr><td>' + fmtSec(e.t) + '</td><td>' + esc(t) + '</td></tr>' : ''; }).join('');
+    tb.innerHTML = ev.map(function (e) { var t = describe(e); return t ? '<tr><td>' + fmtSec(since(ev, e)) + '</td><td>' + esc(t) + '</td></tr>' : ''; }).join('');
   }
 
   // подсказка при наведении

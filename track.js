@@ -20,8 +20,10 @@
   function markDone() { try { localStorage.setItem(DONE_KEY, new Date().toISOString()); } catch (e) {} }
   var stopped = isDone();
   if (stopped) { window.Track = { event: function () {}, flush: function () {}, session: '', stopped: true }; return; }
-  var session = ss('proto_session');
-  if (!session) { session = rid(); ss('proto_session', session); }
+  // у каждого прототипа своя сессия, даже если оба открывают в одной вкладке
+  var SESSION_KEY = 'proto_session_' + (CFG.prototype || 'proto') + '_' + respondent;  // новый респондент в той же вкладке = новая сессия
+  var session = ss(SESSION_KEY);
+  if (!session) { session = rid(); ss(SESSION_KEY, session); }
 
   var queue = [];
   var maxScroll = 0;
@@ -75,6 +77,8 @@
   // Тапы
   function sectionOf(el) { return el && el.closest ? el.closest('[data-section]') : null; }
   document.addEventListener('click', function (ev) {
+    // искусственные клики браузера (активация label, отправка формы по Enter) без координат — не тапы
+    if (ev.detail === 0 && ev.clientX === 0 && ev.clientY === 0) return;
     var el = ev.target;
     var tracked = el.closest ? el.closest('[data-track]') : null;
     var sec = sectionOf(el);
@@ -85,7 +89,7 @@
     event('tap', {
       el: label || 'untracked:' + el.tagName.toLowerCase(),
       text: text,
-      dead: !isNav && !(el.closest && el.closest('button, input, label, .qa')),
+      dead: !isNav && !(el.closest && el.closest('button, input, label')),
       section: sec ? sec.getAttribute('data-section') : '',
       x: Math.round(ev.pageX), y: Math.round(ev.pageY),
       xr: +(ev.clientX / window.innerWidth).toFixed(4),
@@ -170,7 +174,7 @@
     wrap.addEventListener('click', function (e) {
       var a = e.target.getAttribute && e.target.getAttribute('data-a');
       if (a === 'copy') { navigator.clipboard && navigator.clipboard.writeText(data).then(function () { e.target.textContent = 'Скопировано'; }); }
-      if (a === 'clear') { try { localStorage.removeItem(LS_KEY); sessionStorage.removeItem('proto_session'); } catch (err) {} location.reload(); }
+      if (a === 'clear') { try { localStorage.removeItem(LS_KEY); sessionStorage.removeItem(SESSION_KEY); } catch (err) {} location.reload(); }
       if (a === 'close' || e.target === wrap) wrap.remove();
       e.stopPropagation();
     }, true);
