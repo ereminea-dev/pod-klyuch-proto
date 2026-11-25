@@ -5,6 +5,10 @@
  * Развернуть: Расширения → Apps Script → вставить этот код → Развернуть → Новое развертывание →
  * тип «Веб-приложение», «Выполнять от моего имени», доступ «Все» → скопировать URL /exec.
  */
+function setup() {
+  sheet_().getRange('A:AD').setNumberFormat('@'); // всё как текст
+}
+
 var SHEET = 'events';
 // ID таблицы-хранилища (скрипт может быть отдельным проектом, не привязанным к таблице)
 var SPREADSHEET_ID = '1cJ6sL3dzwBB3j2IspOoTexDIvTFqjNqQsVxjVflk41c';
@@ -37,16 +41,10 @@ function doPost(e) {
       return typeof v === 'object' ? JSON.stringify(v) : String(v).slice(0, 500);
     });
   });
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
-    var sh = sheet_();
-    var rng = sh.getRange(sh.getLastRow() + 1, 1, rows.length, COLS.length);
-    rng.setNumberFormat('@'); // всё как текст, чтобы таблица не превращала время и числа в свои форматы
-    rng.setValues(rows);
-  } finally {
-    lock.releaseLock();
-  }
+  // appendRow атомарен сам по себе — блокировки не нужны (зависшая блокировка ломала запись)
+  var sh = sheet_();
+  sh.getRange('A:AD').setNumberFormat('@'); // всё как текст: время и числа не превращаются в форматы таблицы
+  rows.forEach(function (row) { sh.appendRow(row); });
   return out_({ ok: true, n: rows.length });
 }
 
