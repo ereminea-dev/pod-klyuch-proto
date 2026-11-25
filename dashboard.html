@@ -145,7 +145,7 @@ tr.sel td { background: var(--track); }
 </div>
 <div id="tip"></div>
 
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <script>
 (function () {
   var CFG = window.PROTO_CONFIG || {};
@@ -243,6 +243,22 @@ tr.sel td { background: var(--track); }
     Object.keys(s).forEach(function (k) { s[k].sort(function (a, b) { return Date.parse(a.ts) - Date.parse(b.ts) || a.t - b.t; }); });
     return s;
   }
+  // Учитываем только первую сессию до перехода в УК: всё после перехода (возврат назад,
+  // повторное открытие той же ссылки респондентом) отбрасываем
+  function isUk(e) { return e.type === 'nav' && /profi\.ru\/remont\//.test(e.to || ''); }
+  function untilUk(evs) {
+    var S = bySession(evs), out = [], ukAt = {};
+    var ids = Object.keys(S).sort(function (a, b) { return Date.parse(S[a][0].ts) - Date.parse(S[b][0].ts); });
+    ids.forEach(function (id) {
+      var ev = S[id], r = ev[0].r || '';
+      if (r && ukAt[r] && Date.parse(ev[0].ts) > ukAt[r]) return;  // респондент уже переходил в УК раньше
+      for (var i = 0; i < ev.length; i++) {
+        out.push(ev[i]);
+        if (isUk(ev[i])) { if (r && !ukAt[r]) ukAt[r] = Date.parse(ev[i].ts); break; }
+      }
+    });
+    return out;
+  }
   function median(a) { if (!a.length) return null; a = a.slice().sort(function (x, y) { return x - y; }); var m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
   function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
   function fmtSec(ms) { if (ms == null) return '—'; var s = Math.round(ms / 1000); return s < 60 ? s + ' с' : Math.floor(s / 60) + ' мин ' + (s % 60) + ' с'; }
@@ -261,7 +277,7 @@ tr.sel td { background: var(--track); }
     var rs = {}; ALL.forEach(function (e) { if (!(document.getElementById('f-hide').checked && isTest(e.r))) rs[e.r || '(без метки)'] = 1; });
     sel.innerHTML = '<option value="">Все респонденты</option>' + Object.keys(rs).sort().map(function (r) { return '<option' + (r === cur ? ' selected' : '') + '>' + esc(r) + '</option>'; }).join('');
 
-    var evs = filtered(), S = bySession(evs), ids = Object.keys(S), n = ids.length;
+    var evs = untilUk(filtered()), S = bySession(evs), ids = Object.keys(S), n = ids.length;
     setStatus('Источник: <b>' + esc(source) + '</b> · событий: ' + evs.length + ' · обновлено ' + new Date().toLocaleTimeString('ru-RU'));
 
     // KPI

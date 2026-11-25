@@ -13,6 +13,13 @@
   // ?embed=1 — страница открыта внутри дашборда для тепловой карты: ничего не логируем
   if (params.get('embed') === '1') { window.Track = { event: function () {}, flush: function () {}, session: '' }; return; }
   var respondent = params.get('r') || '';
+  // Пишем только первую сессию до перехода в УК: после перехода ставим метку на устройстве
+  // (отдельно для каждого респондента r), и при возврате назад или повторном открытии ничего не логируем
+  var DONE_KEY = 'proto_done_' + (CFG.prototype || 'proto') + '_' + respondent;
+  function isDone() { try { return !!localStorage.getItem(DONE_KEY); } catch (e) { return false; } }
+  function markDone() { try { localStorage.setItem(DONE_KEY, new Date().toISOString()); } catch (e) {} }
+  var stopped = isDone();
+  if (stopped) { window.Track = { event: function () {}, flush: function () {}, session: '', stopped: true }; return; }
   var session = ss('proto_session');
   if (!session) { session = rid(); ss('proto_session', session); }
 
@@ -22,6 +29,7 @@
   function docH() { return Math.max(document.documentElement.scrollHeight, 1); }
 
   function event(type, data) {
+    if (stopped) return;
     var e = {
       ts: new Date().toISOString(),
       t: Date.now() - T0,
@@ -88,8 +96,10 @@
     if (isNav) {
       ev.preventDefault();
       var href = tracked.href;
-      event('nav', { el: label, to: tracked.getAttribute('data-to') || href });
+      var to = tracked.getAttribute('data-to') || href;
+      event('nav', { el: label, to: to });
       flush();
+      if (/profi\.ru\/remont\//.test(to)) { markDone(); stopped = true; }
       setTimeout(function () { location.href = href; }, 150);
     }
   }, true);
@@ -128,10 +138,13 @@
       event('page_hide', { ms: Date.now() - T0, max_scroll: maxScroll });
       flush();
     } else {
+      if (isDone()) { stopped = true; return; }
       event('page_show', {});
     }
   });
   window.addEventListener('pagehide', function () { flush(); });
+  // Возврат кнопкой «Назад» из УК (страница из кэша браузера) — больше не пишем
+  window.addEventListener('pageshow', function (ev) { if (ev.persisted && isDone()) stopped = true; });
 
   // Экспорт локального лога: тройной тап по логотипу в шапке
   var taps = [];
