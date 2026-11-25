@@ -88,7 +88,7 @@
     if (isNav) {
       ev.preventDefault();
       var href = tracked.href;
-      event('nav', { el: label, to: href });
+      event('nav', { el: label, to: tracked.getAttribute('data-to') || href });
       flush();
       setTimeout(function () { location.href = href; }, 150);
     }

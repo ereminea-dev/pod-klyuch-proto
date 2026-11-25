@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Профи.ру</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #fff; }
+  .s { position: fixed; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px;
+       border: 3px solid #eff1f8; border-top-color: #fa2a48; border-radius: 50%; animation: r .8s linear infinite; }
+  @keyframes r { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="s"></div>
+<script>
+// Промежуточная страница: переход на profi.ru без жеста пользователя,
+// чтобы iOS (Universal Links) и Android (App Links) не открывали приложение Профи.
+(function () {
+  var to = new URLSearchParams(location.search).get('to') || '';
+  if (!/^https:\/\/(www\.)?profi\.ru\//.test(to)) to = 'https://www.profi.ru/';
+  location.replace(to);
+})();
+</script>
+</body>
+</html>

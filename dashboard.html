@@ -63,7 +63,8 @@ h1 { font-size: 20px; line-height: 28px; font-weight: 600; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 /* тепловая карта */
 .heat-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-.heat-frame { position: relative; width: 393px; flex: none; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: #fff; }
+.heat-frame { position: relative; width: 393px; flex: none; border: 1px solid var(--border); border-radius: 16px; overflow: hidden auto; max-height: 85vh; background: #fff; }
+.heat-frame > .heat-in { position: relative; }
 .heat-frame iframe { display: block; width: 393px; border: 0; pointer-events: none; }
 .heat-frame canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 .heat-side { flex: 1; min-width: 240px; }
@@ -121,7 +122,7 @@ tr.sel td { background: var(--track); }
       <div class="sub">Каждая точка — тап. Положение пересчитано относительно блока, поэтому сопоставимо между телефонами разной ширины</div>
       <div class="legend"><span><i style="background:var(--series-1)"></i>Тап по рабочему элементу</span><span><i style="background:var(--series-2)"></i>«Мёртвый» тап — ничего не произошло</span></div>
       <div class="heat-wrap">
-        <div class="heat-frame" id="heat-frame"><iframe id="heat-iframe" src="index.html?embed=1" title="Прототип" scrolling="no"></iframe><canvas id="heat-canvas"></canvas></div>
+        <div class="heat-frame" id="heat-frame"><div class="heat-in"><iframe id="heat-iframe" src="index.html?embed=1" title="Прототип" scrolling="no"></iframe><canvas id="heat-canvas"></canvas></div></div>
         <div class="heat-side">
           <h2>Куда тапают</h2>
           <div class="sub">Сессий с тапом по элементу; синий — рабочие тапы, оранжевый — мёртвые</div>
@@ -144,7 +145,7 @@ tr.sel td { background: var(--track); }
 </div>
 <div id="tip"></div>
 
-<script src="config.js?v=2"></script>
+<script src="config.js?v=3"></script>
 <script>
 (function () {
   var CFG = window.PROTO_CONFIG || {};
@@ -205,8 +206,8 @@ tr.sel td { background: var(--track); }
     ['t', 'x', 'y', 'xr', 'yr', 'sxr', 'syr', 'vw', 'vh', 'sy', 'pct', 'ms', 'max_scroll', 'len', 'dpr', 'doc_h'].forEach(function (k) {
       if (e[k] !== undefined && e[k] !== '' && e[k] !== null) e[k] = +e[k];
     });
-    if (typeof e.dead === 'string') e.dead = e.dead === 'true';
-    if (typeof e.open === 'string') e.open = e.open === 'true';
+    if (typeof e.dead === 'string') e.dead = e.dead.toLowerCase() === 'true';
+    if (typeof e.open === 'string') e.open = e.open.toLowerCase() === 'true';
     return e;
   }
   document.getElementById('f-file').addEventListener('change', function (ev) {
@@ -320,11 +321,16 @@ tr.sel td { background: var(--track); }
 
   // тепловая карта поверх живого прототипа
   var ifr = document.getElementById('heat-iframe'), cnv = document.getElementById('heat-canvas'), lastTaps = [];
-  ifr.addEventListener('load', function () {
+  // высота iframe = высота прототипа; подгоняем повторно, т.к. iframe может загрузиться раньше скрипта
+  var fitted = 0;
+  function fit() {
     var d = ifr.contentDocument;
-    function fit() { ifr.style.height = d.documentElement.scrollHeight + 'px'; drawHeat(lastTaps); }
-    (d.fonts ? d.fonts.ready : Promise.resolve()).then(function () { setTimeout(fit, 300); });
-  });
+    if (!d || !d.body || d.readyState === 'loading') return;
+    var h = d.documentElement.scrollHeight;
+    if (h > 300 && h !== fitted) { fitted = h; ifr.style.height = h + 'px'; drawHeat(lastTaps); }
+  }
+  ifr.addEventListener('load', fit);
+  setInterval(fit, 1000);
   function drawHeat(taps) {
     lastTaps = taps;
     var d = ifr.contentDocument; if (!d || !d.body) return;

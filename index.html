@@ -245,7 +245,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 <header class="header">
   <img class="logo" src="img/logo.svg" alt="Профи.ру" data-track="header_logo">
-  <a class="login" href="https://profi.ru/cabinet/login/" data-track="header_login" data-nav>Войти</a>
+  <a class="login" href="go.html?to=https%3A%2F%2Fwww.profi.ru%2Fcabinet%2Flogin%2F" data-to="https://www.profi.ru/cabinet/login/" data-track="header_login" data-nav>Войти</a>
 </header>
 
 <main>
@@ -401,7 +401,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
     <div class="links t17">
       <span data-track="footer_full_version">Полная версия сайта</span>
       <span data-track="footer_city">Город Казань</span>
-      <a href="https://profi.ru/cabinet/login/" data-track="footer_login_client" data-nav>Вход для клиентов</a>
+      <a href="go.html?to=https%3A%2F%2Fwww.profi.ru%2Fcabinet%2Flogin%2F" data-to="https://www.profi.ru/cabinet/login/" data-track="footer_login_client" data-nav>Вход для клиентов</a>
       <span data-track="footer_login_pro">Вход для специалистов</span>
       <span data-track="footer_jobs_city">Работа в Казани</span>
       <span data-track="footer_life">Жизнь в Профи</span>
@@ -417,12 +417,16 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   </div>
 </footer>
 
-<script src="config.js?v=2"></script>
-<script src="track.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="track.js?v=3"></script>
 <script>
 (function () {
-  var UK_URL = 'https://profi.ru/remont/byttehnika/remont-bytovoi-tehniki/remont-stiralnyh-mashin/?seamless=1&tabName=ORDER';
-  document.querySelectorAll('.js-cta').forEach(function (a) { a.href = UK_URL; a.setAttribute('data-nav', ''); });
+  // www.profi.ru не привязан к приложению (его файлы ассоциации отдают редирект) — ссылка не откроет приложение Профи;
+  // плюс переход идёт через go.html без жеста пользователя, чтобы iOS/Android не перехватили profi.ru после редиректа
+  var UK_URL = 'https://www.profi.ru/remont/byttehnika/remont-bytovoi-tehniki/remont-stiralnyh-mashin/?seamless=1&tabName=ORDER';
+  document.querySelectorAll('.js-cta').forEach(function (a) {
+    a.href = 'go.html?to=' + encodeURIComponent(UK_URL); a.setAttribute('data-to', UK_URL); a.setAttribute('data-nav', '');
+  });
 
   // FAQ-аккордеон
   document.querySelectorAll('.qa > button').forEach(function (b) {
