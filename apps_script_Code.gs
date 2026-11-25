@@ -6,6 +6,8 @@
  * тип «Веб-приложение», «Выполнять от моего имени», доступ «Все» → скопировать URL /exec.
  */
 var SHEET = 'events';
+// ID таблицы-хранилища (скрипт может быть отдельным проектом, не привязанным к таблице)
+var SPREADSHEET_ID = '1cJ6sL3dzwBB3j2IspOoTexDIvTFqjNqQsVxjVflk41c';
 var COLS = [
   'ts', 't', 'session', 'r', 'proto', 'type', 'el', 'text', 'dead', 'section',
   'x', 'y', 'xr', 'yr', 'sxr', 'syr', 'vw', 'vh', 'sy', 'pct', 'ms', 'max_scroll',
@@ -13,7 +15,7 @@ var COLS = [
 ];
 
 function sheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh = ss.getSheetByName(SHEET);
   if (!sh) {
     sh = ss.insertSheet(SHEET);
