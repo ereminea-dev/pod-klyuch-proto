@@ -90,7 +90,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   padding: 24px 24px 40px; display: flex; flex-direction: column; gap: 32px;
 }
 .cards { display: flex; flex-direction: column; gap: 4px; }
-.bcard { background: #fff; border-radius: 32px; padding: 24px; display: flex; flex-direction: column; gap: 4px; }
+.benefits { position: relative; }
+.bcard { position: relative; background: #fff; border-radius: 32px; padding: 24px; display: flex; flex-direction: column; gap: 4px; }
+/* зачёркивания заголовков — отдельные слои в макете (187:7195–7197), прозрачность 80% */
+.bcard .strike { position: absolute; z-index: 2; max-width: none; pointer-events: none; }  /* прозрачность 80% уже в выгрузке из Figma */
+.benefits .bub { position: absolute; z-index: 3; max-width: none; pointer-events: none; }
+.benefits .bub.dodge { mix-blend-mode: color-dodge; }
 .benefits .after { text-align: center; }
 
 /* Три шага */
@@ -179,10 +184,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
   <section class="benefits" data-section="benefits">
     <h2 class="sf22">Вам не придётся</h2>
+    <!-- пузыри поверх блока: в макете это отдельные слои над лендингом (251:656 и группа 187:7198 с наложением Color Dodge) -->
+    <img class="bub" src="img/bubble-1.png" alt="" style="right:53px;top:54px;width:52px;height:51px">
+    <img class="bub dodge" src="img/bubbles-group.png" alt="" style="right:6px;top:248px;width:160px;height:352px">
     <div class="cards">
-      <div class="bcard" data-track="benefit_listing"><p class="ony22m">Листать объявления и&nbsp;отзывы</p><p class="sf17">Найдём мастера с опытом в&nbsp;ремонте стиральных машин и&nbsp;рейтингом не&nbsp;ниже&nbsp;4,8</p></div>
-      <div class="bcard" data-track="benefit_calls"><p class="ony22m">Звонить и&nbsp;договариваться</p><p class="sf17">Убедимся, что мастер сможет помочь в удобное для вас время</p></div>
-      <div class="bcard" data-track="benefit_unknown"><p class="ony22m">Быть в&nbsp;неизвестности</p><p class="sf17">Покажем отзывы и анкету выбранного специалиста, чтобы вы знали, кто приедет</p></div>
+      <div class="bcard" data-track="benefit_listing"><img class="strike" src="img/strike-1.png" alt="" style="left:40px;top:3px;width:205px;height:77.3px"><p class="ony22m">Листать объявления и&nbsp;отзывы</p><p class="sf17">Найдём мастера с опытом в&nbsp;ремонте стиральных машин и&nbsp;рейтингом не&nbsp;ниже&nbsp;4,8</p></div>
+      <div class="bcard" data-track="benefit_calls"><img class="strike" src="img/strike-2.png" alt="" style="left:62px;top:15px;width:206.3px;height:44.3px"><p class="ony22m">Звонить и&nbsp;договариваться</p><p class="sf17">Убедимся, что мастер сможет помочь в удобное для вас время</p></div>
+      <div class="bcard" data-track="benefit_unknown"><img class="strike" src="img/strike-3.png" alt="" style="left:58px;top:8px;width:205.7px;height:59px"><p class="ony22m">Быть в&nbsp;неизвестности</p><p class="sf17">Покажем отзывы и анкету выбранного специалиста, чтобы вы знали, кто приедет</p></div>
     </div>
     <p class="after ony17">Вы пообщаетесь и встретитесь только&nbsp;с&nbsp;одним мастером. <br>Профи.ру подберёт для вас самого подходящего, и он с вами свяжется</p>
     <div class="btn-wrap"><a class="btn js-cta" href="#" data-track="cta_benefits">Вызвать мастера</a></div>
