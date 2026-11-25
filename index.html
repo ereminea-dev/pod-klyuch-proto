@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<title>Мастер, которого не нужно искать — Профи.ру</title>
+<link rel="preload" href="https://cdn.profi.ru/uikit/fonts/ONY_FORM/ONY-Form-New-Medium.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face {
+  font-family: "ONY-FORM";
+  src: url("https://cdn.profi.ru/uikit/fonts/ONY_FORM/ONY-Form-New-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+:root {
+  --text: #181818;
+  --muted: #838398;
+  --red: #fa2a48;
+  --card: #eff1f8;
+  --blue-bg: #e6f1fc;
+  --line: #e9ebf5;
+  --grad: linear-gradient(147.5deg, #f1f9fc 10.9%, #a8d5fa 135.8%);
+  --sys: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ony: "ONY-FORM", var(--sys);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { overflow-x: hidden; }
+body {
+  font-family: var(--sys);
+  color: var(--text);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+/* Типографика из макета */
+.t28 { font-size: 28px; line-height: 32px; letter-spacing: 0.14px; font-weight: 590; }
+.t22 { font-size: 22px; line-height: 28px; letter-spacing: 0.15px; font-weight: 510; }
+.t17 { font-size: 17px; line-height: 22px; letter-spacing: 0.21px; font-weight: 400; }
+.t17b { font-size: 17px; line-height: 22px; letter-spacing: 0.21px; font-weight: 590; }
+.t15 { font-size: 15px; line-height: 20px; letter-spacing: 0.1px; font-weight: 400; }
+.t13 { font-size: 13px; line-height: 16px; letter-spacing: -0.08px; font-weight: 400; }
+
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 48px; padding: 12px 16px; border-radius: 12px;
+  background: var(--red); color: #fff;
+  font-size: 17px; line-height: 22px; font-weight: 590; letter-spacing: 0.49px;
+  transition: transform .1s, filter .1s;
+}
+.btn:active { transform: scale(.98); filter: brightness(.95); }
+.btn-lg { height: 56px; padding: 16px; border-radius: 16px; }
+
+/* Шапка */
+.header {
+  height: 50px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; background: #fff;
+}
+.header .logo { width: 96px; height: 18px; }
+.header .login { font-size: 15px; line-height: 20px; letter-spacing: 0.1px; padding: 10px 0; }
+
+/* Первый экран */
+.hero {
+  background: var(--grad); border-radius: 40px;
+  padding: 48px 24px; display: flex; flex-direction: column; align-items: center; gap: 32px;
+}
+.hero-head { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; width: 100%; }
+.eyebrow {
+  background: #fff; border-radius: 12px; padding: 8px 12px 8px 8px;
+  font-family: var(--ony); font-weight: 500; font-size: 15px; line-height: 20px; letter-spacing: -0.08px;
+}
+.hero-title { display: flex; flex-direction: column; gap: 8px; }
+.hero .btn-lg { width: 100%; }
+.benefits { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.benefit {
+  position: relative; overflow: hidden; background: #fff; border-radius: 32px;
+  min-height: 140px; padding: 24px 80px 24px 24px; display: flex;
+}
+.benefit .txt { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 4px; max-width: 241px; }
+.benefit .ill { position: absolute; right: 0; bottom: 0; width: 138px; height: 140px; }
+
+/* Попробуйте поиск по-новому */
+.services { padding: 40px 20px; display: flex; flex-direction: column; gap: 28px; }
+.services h2 { font-size: 28px; line-height: 32px; letter-spacing: 0.14px; font-weight: 600; }
+.svc-list { display: flex; flex-direction: column; gap: 4px; }
+.svc {
+  position: relative; overflow: hidden; background: var(--card); border-radius: 32px;
+  height: 184px; padding: 24px; display: flex; flex-direction: column; gap: 4px;
+}
+.svc .txt { position: relative; z-index: 1; height: 100px; }
+.svc .name { font-weight: 600; }
+.svc .chips { position: relative; z-index: 1; display: flex; gap: 4px; }
+.chip { background: #fff; border-radius: 8px; padding: 8px 12px; }
+.svc .ill { position: absolute; right: 0; top: 0; width: 186px; height: 184px; }
+
+/* Подберём того, кто справится */
+.trust {
+  background: var(--grad); background-image: linear-gradient(126.3deg, #f1f9fc -5.7%, #a8d5fa 133.3%);
+  border-radius: 40px; padding: 48px 24px; display: flex; flex-direction: column; gap: 32px;
+}
+.avatars { display: flex; }
+.avatars > * { width: 44px; height: 44px; border-radius: 50%; flex: none; }
+.avatars > * + * { margin-left: -4px; }
+.avatars .more {
+  background: #fff; box-shadow: inset 0 0 0 2px #d0e9fb;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: 0.21px;
+}
+.trust .txt { display: flex; flex-direction: column; gap: 8px; }
+.trust-chip {
+  background: #fff; border-radius: 16px; min-height: 56px; padding: 8px 8px 8px 12px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; line-height: 20px; letter-spacing: 0.1px; font-weight: 590;
+}
+.trust-chip span { flex: 1; }
+.trust-chip img { width: 24px; height: 24px; flex: none; }
+
+/* Как вызвать мастера */
+.steps-sec { padding: 48px 24px; display: flex; flex-direction: column; gap: 32px; }
+.steps { display: flex; flex-direction: column; gap: 16px; }
+.step { display: flex; align-items: center; gap: 4px; }
+.step .num {
+  width: 64px; flex: none; text-align: center; opacity: .5; color: var(--muted);
+  font-family: var(--ony); font-weight: 500; font-size: 60px; line-height: 60px; letter-spacing: -0.16px;
+}
+
+/* Что можно поручить */
+.prices { padding: 40px 20px; display: flex; flex-direction: column; gap: 32px; }
+.prices-head { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.all-prices {
+  display: flex; align-items: center; gap: 8px; height: 48px; padding: 12px 16px; border-radius: 12px;
+  font-size: 17px; line-height: 22px; font-weight: 590; letter-spacing: 0.49px;
+}
+.all-prices img { width: 24px; height: 24px; }
+.tiles { display: flex; flex-direction: column; gap: 8px; }
+.tile {
+  background: var(--card); border-radius: 24px; padding: 24px 12px;
+  display: flex; align-items: center; gap: 16px;
+}
+.tile img { width: 64px; height: 64px; flex: none; }
+.tile .txt { display: flex; flex-direction: column; gap: 4px; }
+.tile .name { font-size: 17px; line-height: 22px; font-weight: 510; letter-spacing: 0.49px; }
+.tile .name.ony { font-family: var(--ony); font-weight: 500; letter-spacing: 0; }
+.tile .price { font-size: 15px; line-height: 20px; letter-spacing: 0.38px; color: var(--muted); }
+
+/* Карта и проверка адреса */
+.map-sec { padding: 40px 24px; display: flex; flex-direction: column; gap: 4px; }
+.map-sec .map { width: 100%; aspect-ratio: 345 / 297; border-radius: 32px; object-fit: cover; }
+.addr {
+  background: var(--blue-bg); border-radius: 32px; padding: 32px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+.addr .txt { display: flex; flex-direction: column; gap: 12px; }
+.addr h2 { font-size: 22px; line-height: 28px; letter-spacing: 0.15px; font-weight: 500; }
+.addr form { display: flex; flex-direction: column; gap: 16px; }
+.input {
+  display: flex; align-items: center; gap: 8px; height: 48px; padding: 12px 16px;
+  background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 1px transparent; transition: box-shadow .15s;
+}
+.input:focus-within { box-shadow: inset 0 0 0 1px #a9a9c1; }
+.input.err { box-shadow: inset 0 0 0 1px var(--red); }
+.input img { width: 24px; height: 24px; flex: none; }
+.input input {
+  flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text);
+  font-family: inherit; font-size: 15px; line-height: 20px; letter-spacing: 0.1px;
+}
+.input input::placeholder { color: var(--muted); opacity: 1; }
+.addr .btn { font-weight: 600; }
+.addr-result {
+  display: none; align-items: flex-start; gap: 8px; background: #fff; border-radius: 12px; padding: 12px 16px;
+}
+.addr-result.show { display: flex; }
+.addr-result .ok {
+  width: 20px; height: 20px; flex: none; border-radius: 50%; background: #2bb24c; margin-top: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Отзывы */
+.reviews {
+  background: var(--blue-bg); border-radius: 40px; padding: 48px 24px;
+  display: flex; flex-direction: column; gap: 32px;
+}
+.rev-list { display: flex; flex-direction: column; gap: 4px; }
+.rev { background: #fff; border-radius: 32px; padding: 32px; display: flex; flex-direction: column; gap: 16px; }
+.rev .stars { width: 120px; height: 24px; }
+.rev .who { display: flex; align-items: center; gap: 8px; font-size: 17px; line-height: 22px; letter-spacing: 0.21px; font-weight: 600; }
+.rev .who img { width: 44px; height: 44px; border-radius: 50%; }
+
+/* FAQ */
+.faq { padding: 40px 20px; display: flex; flex-direction: column; gap: 16px; }
+.faq h2 { font-size: 22px; line-height: 28px; letter-spacing: 0.15px; font-weight: 500; }
+.qa { box-shadow: inset 0 -1px 0 var(--line); }
+.qa:last-child { box-shadow: none; }
+.qa button {
+  width: 100%; display: flex; justify-content: space-between; gap: 4px; padding: 16px 0; text-align: left;
+}
+.qa .chev { width: 28px; height: 24px; flex: none; padding-left: 4px; transition: transform .2s; }
+.qa.open .chev { transform: rotate(180deg); }
+.qa .ans { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .2s; }
+.qa .ans > div { overflow: hidden; }
+.qa .ans p { padding: 0 0 24px; margin-top: -4px; }
+.qa.open .ans { grid-template-rows: 1fr; }
+
+/* Финальный призыв */
+.final { padding: 40px 24px 80px; }
+.final-box {
+  background: linear-gradient(113.2deg, #f1f9fc -16.3%, #a8d5fa 131.7%); border-radius: 32px; padding: 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 32px; text-align: center;
+}
+
+/* Футер */
+.footer { background: #e9ebf5; padding: 22px 0 calc(24px + env(safe-area-inset-bottom)); }
+.footer .in { padding: 0 25px; }
+.footer .logo { width: 125px; height: 24px; margin: 4px 0 0 2px; }
+.support { display: flex; gap: 20px; margin-top: 15px; }
+.support > * { flex: 1; font-size: 13px; letter-spacing: 0.2px; }
+.support .phone { line-height: 17px; }
+.support .phone b { font-weight: 600; }
+.support .hours { line-height: 16px; letter-spacing: -0.08px; color: var(--muted); }
+.social { display: flex; gap: 15px; margin: 20px 0 0 -1px; }
+.social img { height: 25px; width: auto; }
+.links { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+.links .cat { display: flex; align-items: center; gap: 4px; }
+.links .cat img { width: 20px; height: 20px; }
+.badges { display: flex; gap: 9px; align-items: center; margin: 55px 0 0 1px; }
+.badges img:first-child { width: 144px; height: 40px; }
+.badges img:last-child { width: 139px; height: 38px; }
+.copy { margin-top: 20px; }
+.country {
+  display: inline-flex; align-items: center; gap: 7px; margin: 16px 0 0 -14px; padding: 9px 15px; border-radius: 8px;
+  font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: 0.2px;
+}
+.country img { width: 13px; height: 13px; }
+
+/* Тост для недоступных действий не используется: прочие тапы — «мёртвые», только в лог */
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img class="logo" src="img/logo.svg" alt="Профи.ру" data-track="header_logo">
+  <a class="login" href="https://profi.ru/cabinet/login/" data-track="header_login" data-nav>Войти</a>
+</header>
+
+<main>
+  <section class="hero" data-section="hero">
+    <div class="hero-head">
+      <div class="eyebrow">«Под ключ» от&nbsp;Профи.ру</div>
+      <div class="hero-title">
+        <h1 class="t28">Мастер, которого не&nbsp;нужно искать</h1>
+        <p class="t17">Починить стиралку, подключить плиту, почистить диван. Выберите услугу&nbsp;— а&nbsp;мы&nbsp;найдём подходящего мастера</p>
+      </div>
+    </div>
+    <a class="btn btn-lg js-cta" href="#" data-track="cta_start_matching">Начать подбор</a>
+    <div class="benefits">
+      <div class="benefit" data-track="benefit_no_search">
+        <div class="txt"><p class="t17b">Не&nbsp;придётся искать мастера</p><p class="t17">Подберём для вас самого подходящего</p></div>
+        <img class="ill" src="img/hero-clock.png" alt="">
+      </div>
+      <div class="benefit" data-track="benefit_price">
+        <div class="txt"><p class="t17b">Цена известна заранее</p><p class="t17">Покажем стоимость работы до&nbsp;заказа</p></div>
+        <img class="ill" src="img/hero-wallet.png" alt="">
+      </div>
+      <div class="benefit" data-track="benefit_reviews">
+        <div class="txt"><p class="t17b">Специалисты с&nbsp;отличными отзывами</p><p class="t17">Предложим проверенного, с&nbsp;рейтингом от&nbsp;4,8</p></div>
+        <img class="ill" src="img/hero-cup.png" alt="">
+      </div>
+    </div>
+  </section>
+
+  <section class="services" data-section="services">
+    <h2>Попробуйте поиск по-новому</h2>
+    <div class="svc-list">
+      <div class="svc" data-track="svc_card_cleaning">
+        <img class="ill" src="img/svc-sofa.png" alt="">
+        <div class="txt t17"><p class="name">Химчистка</p><p>от&nbsp;4000&nbsp;₽</p></div>
+        <div class="chips t13"><span class="chip" data-track="svc_chip_cleaning_furniture">Мебель</span><span class="chip" data-track="svc_chip_cleaning_carpets">Ковры</span></div>
+      </div>
+      <div class="svc" data-track="svc_card_plumbing">
+        <img class="ill" src="img/svc-pipe.png" alt="">
+        <div class="txt t17"><p class="name">Сантехника</p><p>от&nbsp;3000&nbsp;₽</p></div>
+        <div class="chips t13"><span class="chip" data-track="svc_chip_plumbing_repair">Ремонт</span><span class="chip" data-track="svc_chip_plumbing_install">Установка</span></div>
+      </div>
+      <div class="svc" data-track="svc_card_appliances">
+        <img class="ill" src="img/svc-washer.png" alt="">
+        <div class="txt t17"><p class="name">Бытовая техника</p><p>от&nbsp;3000&nbsp;₽</p></div>
+        <div class="chips t13"><span class="chip" data-track="svc_chip_appliances_install">Установка</span><span class="chip" data-track="svc_chip_appliances_connect">Подключение</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust" data-section="trust">
+    <div class="avatars">
+      <img src="img/ava-1.png" alt=""><img src="img/ava-2.png" alt=""><img src="img/ava-3.png" alt=""><img src="img/ava-4.png" alt=""><img src="img/ava-5.png" alt="">
+      <div class="more">10+</div>
+    </div>
+    <div class="txt">
+      <h2 class="t22">Подберём того, который справится с&nbsp;вашей задачей</h2>
+      <p class="t17">Не&nbsp;предлагаем случайного мастера: учитываем опыт, отзывы и&nbsp;возможность приехать к&nbsp;вам в&nbsp;нужное время</p>
+    </div>
+    <div class="trust-chip" data-track="trust_rating_chip"><span>99% оценок за&nbsp;заказы «Под ключ»&nbsp;— пятёрки</span><img src="img/shield.svg" alt=""></div>
+  </section>
+
+  <section class="steps-sec" data-section="steps">
+    <h2 class="t22">Как вызвать мастера</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span class="t17">Расскажите о&nbsp;задаче</span></div>
+      <div class="step"><span class="num">2</span><span class="t17">Посмотрите цену</span></div>
+      <div class="step"><span class="num">3</span><span class="t17">Выберите время</span></div>
+    </div>
+    <a class="btn js-cta" href="#" data-track="cta_find_5min_steps">Найти мастера за&nbsp;5 минут</a>
+  </section>
+
+  <section class="prices" data-section="prices">
+    <div class="prices-head">
+      <h2 class="t22">Что можно поручить прямо сейчас</h2>
+      <div class="all-prices" data-track="prices_all">Все цены <img src="img/arrow-right.svg" alt=""></div>
+    </div>
+    <div class="tiles">
+      <div class="tile" data-track="price_tile_plumbing"><img src="img/tile-wrench.png" alt=""><div class="txt"><p class="name ony">Ремонт и&nbsp;установка сантехники</p><p class="price">от&nbsp;3500&nbsp;₽</p></div></div>
+      <div class="tile" data-track="price_tile_electric"><img src="img/tile-bulb.png" alt=""><div class="txt"><p class="name">Ремонт электрики</p><p class="price">от&nbsp;3500&nbsp;₽</p></div></div>
+      <div class="tile" data-track="price_tile_cleaning"><img src="img/tile-sofa.png" alt=""><div class="txt"><p class="name">Химчистка мебели и&nbsp;ковров</p><p class="price">от&nbsp;4000&nbsp;₽</p></div></div>
+      <div class="tile" data-track="price_tile_handyman"><img src="img/tile-tools.png" alt=""><div class="txt"><p class="name">Мастер на&nbsp;час</p><p class="price">3500&nbsp;₽/час</p></div></div>
+      <div class="tile" data-track="price_tile_lock"><img src="img/tile-lock.png" alt=""><div class="txt"><p class="name">Ремонт дверной замочной скважины</p><p class="price">от&nbsp;3000&nbsp;₽</p></div></div>
+    </div>
+  </section>
+
+  <section class="map-sec" data-section="map">
+    <img class="map" src="img/map.png" alt="Карта Москвы и области" data-track="map_image">
+    <div class="addr">
+      <div class="txt">
+        <h2>Сможет ли профи приехать?</h2>
+        <p class="t17">Мастера работают в Москве и&nbsp;ближайшей Московской области</p>
+      </div>
+      <form class="js-addr" novalidate>
+        <label class="input" data-track="addr_input">
+          <img src="img/search.svg" alt="">
+          <input type="text" name="address" placeholder="Ваш адрес" autocomplete="off" enterkeyhint="go">
+        </label>
+        <button class="btn" type="submit" data-track="addr_check">Проверить</button>
+        <div class="addr-result t15" role="status">
+          <span class="ok"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span>Да, мастера приезжают по&nbsp;этому адресу</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="reviews" data-section="reviews">
+    <h2 class="t22">Что говорят клиенты, которые доверили поиск нам</h2>
+    <div class="rev-list">
+      <div class="rev" data-track="review_1"><img class="stars" src="img/stars.svg" alt="5 из 5"><p class="t15">«Особенно понравилось, что никого не&nbsp;надо выбирать, ни&nbsp;с&nbsp;кем общаться. Мне предложили, и&nbsp;у&nbsp;меня всё совпало»</p><div class="who"><img src="img/rev-maria.png" alt="">Мария</div></div>
+      <div class="rev" data-track="review_2"><img class="stars" src="img/stars.svg" alt="5 из 5"><p class="t15">«Когда подобрали, я&nbsp;всё равно читал отзывы. Не&nbsp;было дискомфорта из-за того, что не&nbsp;сам выбирал»</p><div class="who"><img src="img/rev-ivan.png" alt="">Иван</div></div>
+      <div class="rev" data-track="review_3"><img class="stars" src="img/stars.svg" alt="5 из 5"><p class="t15">«Я&nbsp;удивилась, конечно, когда он&nbsp;позвонил, но&nbsp;это было очень круто. Нужно было быстро, и&nbsp;он&nbsp;приехал быстро»</p><div class="who"><img src="img/rev-ekaterina.png" alt="">Екатерина</div></div>
+      <div class="rev" data-track="review_4"><img class="stars" src="img/stars.svg" alt="5 из 5"><p class="t15">«Это безумно удобно. Я&nbsp;очень не&nbsp;люблю торговаться»</p><div class="who"><img src="img/rev-margarita.png" alt="">Маргарита</div></div>
+    </div>
+  </section>
+
+  <section class="faq" data-section="faq">
+    <h2>Вопросы и ответы</h2>
+    <div class="faq-list">
+      <div class="qa open" data-q="1"><button type="button" data-track="faq_1"><span class="t17b">Почему мне предлагают всего одного мастера?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Так работает «Под ключ»: мы&nbsp;сами выбираем подходящего профи, чтобы вам не&nbsp;пришлось листать анкеты и&nbsp;разбирать отклики. Профиль мастера и&nbsp;отзывы вы&nbsp;увидите до&nbsp;встречи с&nbsp;ним</p></div></div></div>
+      <div class="qa" data-q="2"><button type="button" data-track="faq_2"><span class="t17b">Как вы&nbsp;выбираете мастера?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Нет, мастер скажет точную цену заранее. Она не изменится после согласования. Если цена не подойдёт, можно выбрать другого мастера</p></div></div></div>
+      <div class="qa" data-q="3"><button type="button" data-track="faq_3"><span class="t17b">Я&nbsp;смогу отказаться от&nbsp;мастера?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Нет, мастер скажет точную цену заранее. Она не изменится после согласования. Если цена не подойдёт, можно выбрать другого мастера</p></div></div></div>
+      <div class="qa" data-q="4"><button type="button" data-track="faq_4"><span class="t17b">За&nbsp;что нужно платить?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Нет, мастер скажет точную цену заранее. Она не изменится после согласования. Если цена не подойдёт, можно выбрать другого мастера</p></div></div></div>
+      <div class="qa" data-q="5"><button type="button" data-track="faq_5"><span class="t17b">А&nbsp;если мастер попросил больше, чем было в&nbsp;заказе?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Нет, мастер скажет точную цену заранее. Она не изменится после согласования. Если цена не подойдёт, можно выбрать другого мастера</p></div></div></div>
+      <div class="qa" data-q="6"><button type="button" data-track="faq_6"><span class="t17b">Материалы входят в&nbsp;стоимость?</span><img class="chev" src="img/chevron-down.svg" alt=""></button>
+        <div class="ans"><div><p class="t15">Если в ходе работы что-то пойдёт не&nbsp;так или вам не&nbsp;понравится результат, мастер переделает работу. Гарантия на&nbsp;работу&nbsp;—&nbsp;1&nbsp;год</p></div></div></div>
+    </div>
+  </section>
+
+  <section class="final" data-section="final">
+    <div class="final-box">
+      <h2 class="t22">Поручите нам задачу, и&nbsp;мы&nbsp;выберем мастера</h2>
+      <a class="btn js-cta" href="#" data-track="cta_find_5min_bottom" style="font-weight:600">Найти мастера за&nbsp;5 минут</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer" data-section="footer">
+  <div class="in">
+    <img class="logo" src="img/logo-footer.svg" alt="Профи.ру" data-track="footer_logo">
+    <div class="support">
+      <p class="phone">Служба поддержки:<br><b>8 800 333-45-45</b></p>
+      <p class="hours">Будни: с&nbsp;6 до&nbsp;22 Выходные: с&nbsp;8 до&nbsp;22</p>
+    </div>
+    <div class="social">
+      <img src="img/soc-vk.svg" alt="VK" data-track="footer_vk"><img src="img/soc-ok.svg" alt="OK" data-track="footer_ok"><img src="img/soc-ig.svg" alt="IG" data-track="footer_ig"><img src="img/soc-yt.svg" alt="YouTube" data-track="footer_yt">
+    </div>
+    <div class="links t17">
+      <span data-track="footer_full_version">Полная версия сайта</span>
+      <span data-track="footer_city">Город Казань</span>
+      <a href="https://profi.ru/cabinet/login/" data-track="footer_login_client" data-nav>Вход для клиентов</a>
+      <span data-track="footer_login_pro">Вход для специалистов</span>
+      <span data-track="footer_jobs_city">Работа в Казани</span>
+      <span data-track="footer_life">Жизнь в Профи</span>
+      <span data-track="footer_vacancies">Вакансии</span>
+      <span data-track="footer_ads">Рекламодателям</span>
+      <span class="cat" data-track="footer_catalog">Каталог ссылок <img src="img/down.svg" alt=""></span>
+    </div>
+    <div class="badges">
+      <img src="img/badge-gplay.png" alt="Google Play" data-track="footer_gplay"><img src="img/badge-appstore.png" alt="App Store" data-track="footer_appstore">
+    </div>
+    <p class="copy t17">© PROFI.RU, 2006–2021</p>
+    <div class="country" data-track="footer_country"><img src="img/flag-ru.svg" alt="">Россия — сменить страну<img src="img/country-chevron.svg" alt=""></div>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="track.js"></script>
+<script>
+(function () {
+  var UK_URL = 'https://profi.ru/remont/byttehnika/remont-bytovoi-tehniki/remont-stiralnyh-mashin/?seamless=1&tabName=ORDER';
+  document.querySelectorAll('.js-cta').forEach(function (a) { a.href = UK_URL; a.setAttribute('data-nav', ''); });
+
+  // FAQ-аккордеон
+  document.querySelectorAll('.qa > button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var qa = b.parentElement, open = qa.classList.toggle('open');
+      window.Track && Track.event('faq_toggle', { q: qa.dataset.q, open: open });
+    });
+  });
+
+  // Фейковая проверка адреса: адрес не сохраняем, логируем только длину
+  var form = document.querySelector('.js-addr'), box = form.querySelector('.input'),
+      inp = form.querySelector('input'), res = form.querySelector('.addr-result'), btn = form.querySelector('button');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var len = inp.value.trim().length;
+    window.Track && Track.event('addr_submit', { len: len });
+    if (!len) { box.classList.add('err'); inp.focus(); return; }
+    box.classList.remove('err'); res.classList.remove('show');
+    btn.textContent = 'Проверяем…';
+    setTimeout(function () { btn.textContent = 'Проверить'; res.classList.add('show'); inp.blur(); }, 700);
+  });
+  inp.addEventListener('input', function () { box.classList.remove('err'); res.classList.remove('show'); });
+})();
+</script>
+</body>
+</html>
