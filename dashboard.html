@@ -492,6 +492,7 @@ tr.sel td { background: var(--track); }
       case 'section_dwell': return null;
       case 'scroll_depth': return 'Долистал(а) до ' + e.pct + '%';
       case 'faq_toggle': return (e.open ? 'Открыл(а)' : 'Закрыл(а)') + ' вопрос FAQ ' + e.q;
+      case 'note_toggle': return (e.open ? 'Раскрыл(а)' : 'Свернул(а)') + ' плашку «' + (e.q === 'exact' ? 'Точная цена после диагностики' : 'Примерную стоимость покажем сразу') + '»';
       case 'addr_submit': return e.len ? 'Проверил(а) адрес' : 'Нажал(а) «Проверить» с пустым полем';
       case 'page_hide': return 'Свернул(а) или закрыл(а) страницу';
       case 'page_show': return 'Вернулся(ась) на страницу';
