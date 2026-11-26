@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<title>Мастер на час со скидкой 50% — Профи.ру</title>
+<link rel="preload" href="img/top.webp" as="image">
+<style>
+/* Прототип «Письмо Деду Морозу» (Figma jyrkwxBDwSZ1bG7eXSJfIB, 19051:4411, 393 pt).
+   Страница — нарезка эталонного рендера 3x; всё в единицах макета: 1 pt = var(--u),
+   поэтому на любой ширине телефона пропорции 1 в 1 и ничего не съезжает. */
+:root {
+  --w: min(100vw, 430px);
+  --u: calc(var(--w) / 393);
+  --sys: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { overflow-x: hidden; background: #fff; }
+body { font-family: var(--sys); color: #181818; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+img { display: block; width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; display: block; width: 100%; text-align: left; }
+
+.page { width: var(--w); margin: 0 auto; padding-bottom: calc(104 * var(--u) + env(safe-area-inset-bottom)); }
+.slice { position: relative; }
+.hit { position: absolute; display: block; border-radius: calc(16 * var(--u)); }
+.hit:active { background: rgba(0, 0, 0, .08); }
+
+/* Карусель желаний: карточки 196×128, шаг 8, отступы 16 */
+.wishes {
+  display: flex; gap: calc(8 * var(--u)); overflow-x: auto; overflow-y: hidden;
+  padding: calc(10 * var(--u)) calc(16 * var(--u)) calc(8 * var(--u));
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+}
+.wishes::-webkit-scrollbar { display: none; }
+.wish {
+  position: relative; flex: 0 0 auto; width: calc(196 * var(--u)); height: calc(128 * var(--u));
+  border-radius: calc(24 * var(--u)); background: var(--bg);
+  padding: calc(20 * var(--u)) calc(16 * var(--u)) calc(16 * var(--u));
+}
+.wish::before { /* булавка */
+  content: ""; position: absolute; left: 50%; top: calc(-6 * var(--u));
+  width: calc(12 * var(--u)); height: calc(12 * var(--u)); margin-left: calc(-6 * var(--u));
+  border-radius: 50%; background: var(--acc);
+}
+.wish p {
+  width: calc(164 * var(--u));
+  font-size: calc(22 * var(--u)); line-height: calc(28 * var(--u)); font-weight: 510;
+  letter-spacing: calc(0.1 * var(--u)); /* -0.2 в макете + поправка на рендер SF в браузере */
+}
+.wish p > span, .wish p > em { display: block; white-space: nowrap; } /* строки — как в макете */
+.wish em { font-style: normal; color: #fa2a48; }
+.snow {
+  position: absolute; background: var(--acc); opacity: .55;
+  -webkit-mask: url(img/snow24.png) center / 100% 100% no-repeat; mask: url(img/snow24.png) center / 100% 100% no-repeat;
+}
+.snow.big { left: calc(166 * var(--u)); top: calc(12 * var(--u)); width: calc(24 * var(--u)); height: calc(24 * var(--u)); }
+.snow.small {
+  left: calc(16 * var(--u)); top: calc(101.33 * var(--u)); width: calc(18 * var(--u)); height: calc(18 * var(--u));
+  -webkit-mask-image: url(img/snow18.png); mask-image: url(img/snow18.png);
+}
+
+/* FAQ: вопрос + ответ из макета, шеврон отдельно */
+.qa > button { position: relative; }
+.qa .chev {
+  position: absolute; left: calc(353 * var(--u)); top: calc(17 * var(--u));
+  width: calc(24 * var(--u)); height: calc(24 * var(--u)); transition: transform .2s;
+}
+.qa .a { display: block; }
+.qa:not(.open) .a { display: none; }
+.qa:not(.open) .chev { transform: rotate(180deg); }
+.qa:not(.open) > button { padding-bottom: calc(12 * var(--u)); }
+
+/* Липкая кнопка: появляется, когда кнопка первого экрана ушла с экрана */
+.sticky {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #fff;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(110%); transition: transform .25s ease;
+}
+.sticky.show { transform: none; }
+.sticky .slice { width: var(--w); margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Шапка + первый экран (44–384 pt) -->
+  <div class="slice">
+    <img src="img/top.webp" width="1179" height="1020" alt="Профи.ру. Закройте дела по дому: 1750 ₽ в час вместо 3500 ₽. Подарок для тех, кто впервые заказывает на Профи.ру">
+    <a class="hit js-login" aria-label="Войти" style="left:80.4%;top:0;width:19.6%;height:14.7%;border-radius:0"></a>
+    <a class="hit js-cta" id="heroCta" aria-label="Позвать мастера" style="left:8.14%;top:78.24%;width:83.72%;height:16.47%"></a>
+  </div>
+
+  <!-- Карусель желаний (384–530 pt): карточки не кликаются -->
+  <div class="wishes" aria-label="Желания">
+    <div class="wish" style="--bg:#e2f0ff;--acc:#66b2ec"><p><span>Чтобы шкаф</span><em>наконец</em><em>собрался</em></p><i class="snow big"></i><i class="snow small"></i></div>
+    <div class="wish" style="--bg:#fff5e4;--acc:#ffad0b"><p><span>Чтобы по</span><span>ночам</span><span><em>не капал</em> кран</span></p><i class="snow big"></i><i class="snow small"></i></div>
+    <div class="wish" style="--bg:#d6faeb;--acc:#1bb577"><p><span>Чтобы полка</span><em>держалась</em><em>сама</em></p><i class="snow big"></i><i class="snow small"></i></div>
+    <div class="wish" style="--bg:#ffedf0;--acc:#fa2a48"><p><span>Чтобы в</span><span>коридоре</span><em>было светло</em></p><i class="snow big"></i><i class="snow small"></i></div>
+    <div class="wish" style="--bg:#e6ebff;--acc:#617ef8"><p><span>Чтобы дверь</span><em>не скрипела</em></p><i class="snow big"></i><i class="snow small"></i></div>
+  </div>
+
+  <!-- Шаги, «Что мастер успеет за час», «Приедет проверенный мастер», заголовок FAQ (530–1991 pt) -->
+  <div class="slice">
+    <img src="img/mid.webp" width="1179" height="4383" loading="lazy" alt="Работает на раз-два-три. Что мастер успеет за час. Приедет проверенный мастер. Отвечаем на вопросы">
+    <a class="hit js-cta" aria-label="Выбрать свои дела" style="left:13.23%;top:59.55%;width:73.54%;height:3.83%"></a>
+  </div>
+
+  <!-- FAQ: открыт, как в макете -->
+  <div class="faq">
+    <div class="qa open"><button aria-expanded="true"><img src="img/q1.webp" width="1179" height="138" alt="А если мастер не успеет всё за час?"><img class="chev" src="img/chev.png" alt=""></button><img class="a" src="img/a1.webp" width="1179" height="330" loading="lazy" alt="Мастер заранее скажет, сколько примерно уйдёт времени. Если часа не хватит, по желанию сможете продлить по той же цене и оплатить мастеру напрямую."></div>
+    <div class="qa open"><button aria-expanded="true"><img src="img/q2.webp" width="1179" height="138" alt="Нужно покупать материалы?"><img class="chev" src="img/chev.png" alt=""></button><img class="a" src="img/a2.webp" width="1179" height="390" loading="lazy" alt="Инструмент и мелочи вроде дюбелей и саморезов мастер привезёт с собой. Всё остальное — смесители, лампы, карнизы — нужно купить заранее. Спросите у мастера в чате, что стоит подготовить для работы."></div>
+    <div class="qa open"><button aria-expanded="true"><img src="img/q3.webp" width="1179" height="138" alt="Что входит в 1750 ₽ и как платить?"><img class="chev" src="img/chev.png" alt=""></button><img class="a" src="img/a3.webp" width="1179" height="270" loading="lazy" alt="Выезд мастера, инструменты, мелочи для ремонта вроде саморезов и сама работа. Заплатить можно мастеру напрямую."></div>
+    <div class="qa open"><button aria-expanded="true"><img src="img/q4.webp" width="1179" height="138" alt="У меня всего одно дело. Цена та же?"><img class="chev" src="img/chev.png" alt=""></button><img class="a" src="img/a4.webp" width="1179" height="255" loading="lazy" alt="Да, вы платите за час работы, а не за количество дел. Поэтому выгоднее собрать несколько мелочей сразу."></div>
+  </div>
+
+  <!-- «Подробнее в справке», финальный CTA, футер (2590–3626 pt) -->
+  <div class="slice">
+    <img src="img/bottom.webp" width="1179" height="3108" loading="lazy" alt="Желания по дому сбудутся: 1750 ₽/ч вместо 3500 ₽/ч. Футер Профи.ру">
+    <a class="hit js-cta" aria-label="Найти мастера" style="left:12.21%;top:19.11%;width:75.57%;height:4.63%"></a>
+    <a class="hit js-login" aria-label="Вход для клиентов" style="left:4.07%;top:53.86%;width:46.8%;height:3.67%;border-radius:8px"></a>
+  </div>
+</div>
+
+<!-- Липкая «Вызвать мастера» (3626–3730 pt) -->
+<div class="sticky" id="sticky">
+  <div class="slice">
+    <img src="img/sticky.webp" width="1179" height="312" alt="">
+    <a class="hit js-cta" aria-label="Вызвать мастера" style="left:6.11%;top:23.08%;width:87.79%;height:53.85%"></a>
+  </div>
+</div>
+
+<script>
+(function () {
+  // www.profi.ru не привязан к приложению Профи; переход через go.html без жеста пользователя — приложение не откроется
+  var UK_URL = 'https://www.profi.ru/remont/handyman/muzh-na-chas/?seamless=1&tabName=ORDER';
+  var LOGIN_URL = 'https://www.profi.ru/cabinet/login/';
+  function go(url) { return '../go.html?to=' + encodeURIComponent(url); }
+  document.querySelectorAll('.js-cta').forEach(function (a) { a.href = go(UK_URL); });
+  document.querySelectorAll('.js-login').forEach(function (a) { a.href = go(LOGIN_URL); });
+
+  document.querySelectorAll('.qa > button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var open = b.parentElement.classList.toggle('open');
+      b.setAttribute('aria-expanded', open);
+    });
+  });
+
+  var sticky = document.getElementById('sticky'), hero = document.getElementById('heroCta');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) {
+      var e = en[0];
+      sticky.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top < 0);
+    }).observe(hero);
+  } else {
+    sticky.classList.add('show');
+  }
+})();
+</script>
+</body>
+</html>
