@@ -67,3 +67,26 @@ function doGet(e) {
 function out_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * Разовая чистка тестовых событий: запускать вручную из редактора (Выполнить → cleanTests).
+ * Удаляет строки, где метка r начинается с test/layoutcheck (без учёта регистра), равна «ИМЯ», EGIIRR, ylya или пустая.
+ * Удаляет непрерывными блоками снизу вверх — новые строки, которые прилетают во время чистки, не задеваются.
+ */
+function cleanTests() {
+  var sh = sheet_();
+  var n = sh.getLastRow() - 1;
+  if (n <= 0) return;
+  var r = sh.getRange(2, 4, n, 1).getDisplayValues();
+  var EXTRA = ['ИМЯ', 'EGIIRR', 'ylya'];
+  var isTest = function (v) { v = String(v).trim(); return v === '' || EXTRA.indexOf(v) >= 0 || /^(test|layoutcheck)/i.test(v); };
+  var deleted = 0, i = n - 1;
+  while (i >= 0) {
+    if (!isTest(r[i][0])) { i--; continue; }
+    var end = i;
+    while (i >= 0 && isTest(r[i][0])) i--;
+    sh.deleteRows(i + 3, end - i);  // строки таблицы: индекс + 2 (заголовок и счёт с 1)
+    deleted += end - i;
+  }
+  Logger.log('Удалено строк: ' + deleted + ', осталось: ' + (sh.getLastRow() - 1));
+}

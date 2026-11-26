@@ -65,7 +65,7 @@ h1 { font-size: 20px; line-height: 28px; font-weight: 600; }
 .heat-wrap { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
 .heat-frame { position: relative; width: 393px; flex: none; border: 1px solid var(--border); border-radius: 16px; overflow: hidden auto; max-height: 85vh; background: #fff; }
 .heat-frame > .heat-in { position: relative; }
-.heat-frame iframe { display: block; width: 393px; border: 0; pointer-events: none; }
+.heat-frame img { display: block; width: 393px; }
 .heat-frame canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 .heat-side { flex: 1; min-width: 240px; }
 /* таблицы */
@@ -138,7 +138,7 @@ tr.sel td { background: var(--track); }
       <div class="sub">Каждая точка — тап. Положение пересчитано относительно блока, поэтому сопоставимо между телефонами разной ширины</div>
       <div class="legend"><span><i style="background:var(--series-1)"></i>Тап по рабочему элементу</span><span><i style="background:var(--series-2)"></i>«Мёртвый» тап — ничего не произошло</span></div>
       <div class="heat-wrap">
-        <div class="heat-frame" id="heat-frame"><div class="heat-in"><iframe id="heat-iframe" src="about:blank" title="Прототип" scrolling="no"></iframe><canvas id="heat-canvas"></canvas></div></div>
+        <div class="heat-frame" id="heat-frame"><div class="heat-in"><img id="heat-img" alt="Прототип"><canvas id="heat-canvas"></canvas></div></div>
         <div class="heat-side">
           <h2>Куда тапают</h2>
           <div class="sub">Сессий с тапом по элементу; синий — рабочие тапы, оранжевый — мёртвые</div>
@@ -172,16 +172,18 @@ tr.sel td { background: var(--track); }
 
   // Прототипы: id совпадает с PROTO_CONFIG.prototype на странице прототипа
   var PROTOS = [
-    { id: 'landing_pod_klyuch_v1', name: 'Под ключ', page: 'index.html',
+    { id: 'landing_pod_klyuch_v1', name: 'Под ключ', shot: 'heat/pod.jpg',
+      geo: {"w":393,"h":6728,"sections":{"hero":[0,50,393,834],"services":[0,884,393,732],"trust":[0,1616,393,390],"steps":[0,2006,393,448],"prices":[0,2454,393,824],"map":[0,3278,393,715],"reviews":[0,3993,393,1112],"faq":[0,5105,393,600],"final":[0,5705,393,320],"footer":[0,6025,393,703]}},
       sections: [['hero', 'Первый экран'], ['services', 'Поиск по-новому'], ['trust', 'Подберём того…'], ['steps', 'Как вызвать мастера'],
         ['prices', 'Что можно поручить'], ['map', 'Карта и адрес'], ['reviews', 'Отзывы'], ['faq', 'Вопросы и ответы'], ['final', 'Финальный призыв'], ['footer', 'Футер']],
       cta: [['cta_start_matching', '«Начать подбор» (первый экран)'], ['cta_find_5min_steps', '«Найти мастера за 5 минут» (шаги)'], ['cta_find_5min_bottom', '«Найти мастера за 5 минут» (низ)']] },
-    { id: 'landing_vremya_v1', name: 'Дорогое время', page: 'vremya/index.html',
+    { id: 'landing_vremya_v1', name: 'Дорогое время', shot: 'heat/vremya.jpg',
+      geo: {"w":393,"h":5571,"sections":{"hero":[0,50,393,628],"prices":[0,678,393,1075],"benefits":[0,1753,393,784],"steps":[0,2537,393,660],"parts":[0,3197,393,464],"reviews":[0,3661,393,1108],"final":[0,4769,393,274],"faq":[0,5043,393,372],"footer":[0,5415,393,156]}},
       sections: [['hero', 'Первый экран'], ['prices', 'Сначала цена, потом ремонт'], ['benefits', 'Вам не придётся'], ['steps', 'Три шага'],
         ['parts', 'А что с запчастями?'], ['reviews', 'Отзывы'], ['final', 'Бережём ваше время'], ['faq', 'Вопросы и ответы'], ['footer', 'Футер']],
       cta: [['cta_hero', '«Вызвать мастера» (первый экран)'], ['cta_benefits', '«Вызвать мастера» (после «Вам не придётся»)'], ['cta_final', '«Вызвать мастера» (низ)']] }
   ];
-  var ifr = document.getElementById('heat-iframe'), cnv = document.getElementById('heat-canvas'), lastTaps = [], fitted = 0;
+  var himg = document.getElementById('heat-img'), cnv = document.getElementById('heat-canvas'), lastTaps = [];
   var PBY = {}; PROTOS.forEach(function (p) { PBY[p.id] = p; });
   var cur = PROTOS[0];
   try { var saved = localStorage.getItem('dash_proto'); if (saved && PBY[saved]) cur = PBY[saved]; } catch (e) {}
@@ -339,7 +341,7 @@ tr.sel td { background: var(--track); }
     var SECTIONS = cur.sections, CTA = cur.cta;
     var ctaSess = {};
     ids.forEach(function (id) { S[id].forEach(function (e) { if (e.type === 'tap' && /^cta_/.test(e.el)) (ctaSess[e.el] = ctaSess[e.el] || {})[id] = 1; }); });
-    if (ifr.getAttribute('data-page') !== cur.page) { ifr.setAttribute('data-page', cur.page); fitted = 0; ifr.style.height = '600px'; ifr.src = cur.page + '?embed=1'; }
+    if (himg.getAttribute('data-page') !== cur.id) { himg.setAttribute('data-page', cur.id); himg.style.height = cur.geo.h + 'px'; himg.src = cur.shot; }
 
     // CTA
     bars('c-cta', CTA.map(function (c) { var k = Object.keys(ctaSess[c[0]] || {}).length; return { name: c[1], a: k, total: n, tip: k + ' из ' + n + ' сессий' }; }), n, true);
@@ -433,29 +435,19 @@ tr.sel td { background: var(--track); }
     }).join('');
   }
 
-  // тепловая карта поверх живого прототипа
-  // высота iframe = высота прототипа; подгоняем повторно, т.к. iframe может загрузиться раньше скрипта
-  function fit() {
-    var d = ifr.contentDocument;
-    if (!d || !d.body || d.readyState === 'loading') return;
-    var h = d.documentElement.scrollHeight;
-    if (h > 300 && h !== fitted) { fitted = h; ifr.style.height = h + 'px'; drawHeat(lastTaps); }
-  }
-  ifr.addEventListener('load', fit);
-  setInterval(fit, 1000);
+  // тепловая карта поверх снимка прототипа (лендинги сняты с хостинга 26.11.2026).
+  // Снимок — страница целиком в ширину 393; geo.sections — координаты блоков data-section на нём.
   function drawHeat(taps) {
     lastTaps = taps;
-    var d = ifr.contentDocument; if (!d || !d.body) return;
-    var W = 393, H = d.documentElement.scrollHeight, dpr = window.devicePixelRatio || 1;
+    var g = cur.geo, W = g.w, H = g.h, dpr = window.devicePixelRatio || 1;
     cnv.width = W * dpr; cnv.height = H * dpr; cnv.style.width = W + 'px'; cnv.style.height = H + 'px';
     var c = cnv.getContext('2d'); c.scale(dpr, dpr); c.clearRect(0, 0, W, H);
     var css = getComputedStyle(document.documentElement);
     var col = { live: css.getPropertyValue('--series-1').trim(), dead: css.getPropertyValue('--series-2').trim() };
     taps.forEach(function (e) {
-      var x, y, sec = e.section && d.querySelector('[data-section="' + e.section + '"]');
+      var x, y, sec = e.section && g.sections[e.section];
       if (sec && e.sxr != null && e.syr != null && !isNaN(e.sxr)) {
-        var b = sec.getBoundingClientRect();
-        x = b.left + e.sxr * b.width; y = b.top + d.defaultView.scrollY + e.syr * b.height;
+        x = sec[0] + e.sxr * sec[2]; y = sec[1] + e.syr * sec[3];
       } else if (e.xr != null && !isNaN(e.xr)) {
         x = e.xr * W; y = e.yr * H;
       } else return;
